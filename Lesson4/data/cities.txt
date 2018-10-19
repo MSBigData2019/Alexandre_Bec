@@ -1,0 +1,50 @@
+1	Paris	2 229 621
+2	Marseille	855 393
+3	Lyon	500 715
+4	Toulouse	458 298
+5	Nice	342 295
+6	Nantes	292 718
+7	Strasbourg	275 718
+8	Montpellier	272 084
+9	Bordeaux	243 626
+10	Lille	231 491
+11	Rennes	211 373
+12	Reims	182 592
+13	Le Havre	172 074
+14	Saint-Étienne	172 023
+15	Toulon	163 760
+16	Grenoble	160 215
+17	Dijon	153 003
+18	Nîmes	150 564
+19	Angers	150 125
+20	Villeurbanne	147 192
+21	Le Mans	144 244
+22	Saint-Denis (La Réunion)	142 442
+23	Aix-en-Provence	141 545
+24	Clermont-Ferrand	141 463
+25	Brest	139 386
+26	Limoges	135 098
+27	Tours	134 803
+28	Amiens	132 699
+29	Perpignan	120 959
+30	Metz	118 634
+31	Besançon	116 952
+32	Boulogne-Billancourt	116 794
+33	Orléans	114 375
+34	Mulhouse	112 063
+35	Rouen	110 755
+36	Saint-Denis	109 343
+37	Caen	107 229
+38	Argenteuil	106 817
+39	Saint-Paul (La Réunion)	104 332
+40	Montreuil	104 139
+41	Nancy	104 072
+42	Roubaix	95 866
+43	Tourcoing	93 974
+44	Nanterre	92 227
+45	Avignon	90 305
+46	Vitry-sur-Seine	90 075
+47	Créteil	89 989
+48	Dunkerque	89 882
+49	Poitiers	87 427
+50	Asnières-sur-Seine
