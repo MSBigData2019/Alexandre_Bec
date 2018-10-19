@@ -6,7 +6,13 @@ import pandas as pd
 import json
 
 '''
-Créer une matrice de distances entre les 50 grandes villes francaises.﻿
+Créer une matrice de distances entre les 50 plus grandes villes francaises.﻿
+
+
+Ameliorations :
+- Paralleliser les traitements
+- Mise en forme output : dataframe / csv / 2D Array
+- Passer sur l'API Google
 '''
 
 
@@ -26,7 +32,8 @@ def create_list_cities(file):
     for line in cities_file:
         list_cities.append(line.split('\t')[1])
 
-    return(list_cities)
+    return list_cities
+
 
 def read_cities_xls(file):
     pop_xls = pd.read_excel(file, skiprows=7, sheetname="Communes")
@@ -34,11 +41,20 @@ def read_cities_xls(file):
 
 def api_distance(source, destination):
     url = "https://fr.distance24.org/route.json?stops="+source+"|"+destination
+    response = requests.get(url)
+    distance = json.loads(response.content).get('distance')
+    return distance
 
 
 def main():
-    print(create_list_cities("cities.txt"))
-    read_cities_xls("ensemble.xls")
+    cities = create_list_cities("data/cities.txt")
+
+    print(api_distance("Paris", "Marseille"))
+
+    for i in range(0,len(cities)):
+        for j in range(i+1,len(cities)):
+            print(cities[i], " - ", cities[j], " : ", api_distance(cities[i], cities[j]))
+
 
 if __name__ == "__main__":
     main()

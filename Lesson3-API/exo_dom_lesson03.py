@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 import requests
 import pandas as pd
 import json
+import time
 
 '''
 - Récupérer via crawling la liste des 256 top contributors sur cette page https://gist.github.com/paulmillr/2657075
@@ -12,14 +13,11 @@ import json
     le nombre moyens de stars des repositories qui leur appartiennent.
 - Pour finir classer ces 256 contributors par leur note moyenne.﻿
 
-
-
 Ameliorations possibles :
-- Concatenation de dataframes
+- Concatenation Dataframes
 - Ne pas faire la moyenne "à la main"
 - Parallelisation
-- Compte d'appels de l'API
-- get_user_starsum à raccourcir
+- Compte d'appels de l'API (variable globale ?)
 '''
 
 
@@ -39,7 +37,7 @@ def get_top_contribs_names_list(url):
     rows = list()
     for row in table.findAll("tr"):
         rows.append(row.text)
-    return(rows)
+    return rows
 
 
 def build_user_data(url):
@@ -62,43 +60,81 @@ def build_user_data(url):
 
     return git_top_df
 
-def get_user_starsum(user):
-    username = "alexpeterbec"
-    token = open(".API_KEY", 'r').read()
-    base_link = "https://api.github.com/users/"+user+"/repos"
 
-    # Get number of pages
-    req_page = requests.get(base_link, auth=(username, token))
+def get_page_number_for_user(link, username, token):
+
+    req_page = requests.get(link, auth=(username, token))
 
     if not req_page.links:
-        pages_repo = 1
+        return 1
     else:
-        pages_repo = req_page.links["last"]["url"].split("=")[1]
+        return req_page.links["last"]["url"].split("=")[1]
 
+
+
+def get_user_starsum(user, username, token):
+
+    base_link = "https://api.github.com/users/"+user+"/repos"
+
+    pages_repo = get_page_number_for_user(base_link, username, token)
     sum_stars = 0
     sum_repos = 0
 
     for page_nb in range(0,int(pages_repo)):
         repos_group = requests.get(base_link + "?page=" + str(page_nb), auth=(username, token))
 
-        # Raw text for repo @ page_nb
         page_json = json.loads(repos_group.content)
         sum_repos += len(page_json)
 
         for j in range(len(page_json)):
             sum_stars += page_json[j].get("stargazers_count")
 
-    return (sum_stars, sum_repos)
+    return sum_repos, sum_stars
+
+
+def create_star_ranking(userlist, username, token):
+
+    mean_star_list = []
+    count = 256
+
+    for user in userlist:
+        for_loop_start = time.time()
+        res = get_user_starsum(user, username, token)
+        if res[0] == 0:
+            mean_star_list.append(int(0))
+        else:
+            mean_star_list.append(int(res[1] / res[0]))
+
+        count -= 1
+        for_loop_end = time.time()
+        print(user, count, int(for_loop_end-for_loop_start))
+
+    star_ranking = pd.DataFrame({"username":userlist, "mean_star":mean_star_list})
+    return star_ranking
 
 
 def main():
+
+    start_time = time.time()
+
+    USERNAME = "alexpeterbec"
+    TOKEN = open(".API_KEY", 'r').read()
+
     root_link = "https://gist.github.com/paulmillr/2657075"
     users_list = get_top_contribs_names_list(root_link)
 
     git_df = build_user_data(root_link)
-    #print(git_df)
+    #print(git_df['pseudo'])
 
-    print(get_user_starsum("alexpeterbec"))
+    #print(get_user_starsum("alexpeterbec", USERNAME, TOKEN))
+    rank_df = create_star_ranking(git_df['pseudo'], USERNAME, TOKEN)
+    print(rank_df)
+
+    end_time = time.time()
+
+    rank_df.to_csv("Github Ranking.csv", "\t")
+
+    print("Execution Time : ", (end_time-start_time)%60)
 
 
 if __name__ == "__main__":
