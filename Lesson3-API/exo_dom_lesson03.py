@@ -11,6 +11,15 @@ import json
 - Récupérer pour chacun de ces users
     le nombre moyens de stars des repositories qui leur appartiennent.
 - Pour finir classer ces 256 contributors par leur note moyenne.﻿
+
+
+
+Ameliorations possibles :
+- Concatenation de dataframes
+- Ne pas faire la moyenne "à la main"
+- Parallelisation
+- Compte d'appels de l'API
+- get_user_starsum à raccourcir
 '''
 
 
@@ -33,7 +42,7 @@ def get_top_contribs_names_list(url):
     return(rows)
 
 
-def get_links_list(url):
+def build_user_data(url):
     soup = url_to_soup(url)
 
     rank_list = []
@@ -66,10 +75,6 @@ def get_user_starsum(user):
     else:
         pages_repo = req_page.links["last"]["url"].split("=")[1]
 
-    print(pages_repo)
-
-    ''' ITERATE ON PAGES '''
-
     sum_stars = 0
     sum_repos = 0
 
@@ -90,7 +95,7 @@ def main():
     root_link = "https://gist.github.com/paulmillr/2657075"
     users_list = get_top_contribs_names_list(root_link)
 
-    git_df = get_links_list(root_link)
+    git_df = build_user_data(root_link)
     #print(git_df)
 
     print(get_user_starsum("alexpeterbec"))
