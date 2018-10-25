@@ -13,7 +13,6 @@ Le fichier doit être propre et contenir les infos suivantes :
 Les données quanti (prix, km notamment) devront être manipulables (pas de string, pas d'unité).
 Vous ajouterez une colonne si la voiture est plus chere ou moins chere que sa cote moyenne.﻿
 '''
-
 import requests
 import re
 from bs4 import BeautifulSoup
@@ -29,40 +28,76 @@ def url_to_soup(link):
         print("Request Error")
 
 
-def scrap_page(link):
-    soup = url_to_soup(link)
-    table = soup.find_all("div", class_='adLineContainer')
+def ads_number(soup):
+    nb_ads = soup.find(class_="numAnn").text
+    return int(nb_ads)
+
+
+def get_ad_info(soup):
+    ref = "https://www.lacentrale.fr" + soup.a.get('href')
+    version = soup.find(class_='brandModelTitle').text[11:]
+    year = int(soup.find("div", class_='fieldYear').text)
+    mileage = int(soup.find("div", class_='fieldMileage').text.replace("\xa0", "").replace("km", ""))
+    price = int(soup.find(class_='fieldPrice').text.replace("\xa0", "").replace("€", ""))
+    seller = str(soup.find(class_='typeSellerGaranty').text.split(" ")[0])
+
+    return ref, version, year, mileage, price, seller
+
+
+def get_phone(url):
+    soup = url_to_soup(url)
+    phone_raw = soup.find(class_="phoneNumber1").text.replace("\xa0", "")
+
+    return str(re.compile('\d{10}').findall(phone_raw)[0])
+
+
+def scrap_page(soup):
+
+    table = soup.find(class_="resultListContainer").find_all(class_="adLineContainer")
+    ads_treated = 0
+    ref_link, version, year, mileage, price, seller, phone = "", "", int(), int(), int(), "", ""
 
     for adLineContainer in table:
-        print(adLineContainer)
 
-        ref = "https://www.lacentrale.fr"+adLineContainer.a.get('href')
-        print("RefLien : " + ref)
+        if adLineContainer.find(class_="adContainer") is None: continue
+        adContainer = adLineContainer.find(class_="adContainer")
 
-        version = adLineContainer.find(class_='brandModelTitle').text[11:]
-        print("Model : "+version)
+        #[ref_link, version, year, mileage, price, seller]
+        ref_link, version, year, mileage, price, seller = get_ad_info(adContainer)
+        phone = get_phone(ref_link)
+        ads_treated += 1
+        print(ref_link, version, year, mileage, price, seller, phone)
 
-        year = adLineContainer.find("div", class_='fieldYear').text
-        print("Year : " + year)
+    return ads_treated, ref_link, version, year, mileage, price, seller, phone
 
-        mileage = int(adLineContainer.find("div", class_='fieldMileage').text\
-            .replace("\xa0", "")\
-            .replace("km", ""))
-        print("Mileage : " + str(mileage))
 
-        prix = int(adLineContainer.find(class_='fieldPrice').text \
-            .replace("\xa0", "")\
-            .replace("€", ""))
-        print("Prix : "+str(prix))
+def iterate_pages(ads_nb):
 
-        seller = str(adLineContainer.find(class_='typeSellerGaranty').text.split(" ")[0])
-        print("Vendeur : "+seller)
+    break_loop = False
+    page = 1
+    treated = 0
+
+    while not break_loop:
+        print("Scraping page "+str(page))
+        url = "https://www.lacentrale.fr/listing?makesModelsCommercialNames=RENAULT%3AZOE&options=&page="+str(page)+"&r" \
+              "egions=FR-PAC%2CFR-IDF%2CFR-NAQ"
+        soup = url_to_soup(url)
+        treated += scrap_page(soup)[0]
+        page += 1
+
+        if treated == ads_nb:
+            break_loop = True
+
+    return
 
 
 def main():
-    url = "https://www.lacentrale.fr/listing?makesModelsCommercialNames=RENAULT%3AZOE&options=&page=1&regions=FR-PAC%2CFR-IDF%2CFR-NAQ"
-    scrap_page(url)
-
+    url = "https://www.lacentrale.fr/listing?makesModelsCommercialNames=RENAULT%3AZOE&options=&page=2&regions=" \
+          "FR-PAC%2CFR-IDF%2CFR-NAQ"
+    soup = url_to_soup(url)
+    #test_page()
+    iterate_pages(ads_number(soup))
+    #scrap_page(soup)
 
 
 
