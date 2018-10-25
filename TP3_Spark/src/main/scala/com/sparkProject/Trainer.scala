@@ -31,7 +31,7 @@ object Trainer {
       *
       *       TP 3
       *
-      *       - lire le fichier sauvegarder précédemment
+      *       - lire le fichier sauvegardé précédemment
       *       - construire les Stages du pipeline, puis les assembler
       *       - trouver les meilleurs hyperparamètres pour l'entraînement du pipeline avec une grid-search
       *       - Sauvegarder le pipeline entraîné
@@ -41,6 +41,10 @@ object Trainer {
       ********************************************************************************/
 
     println("hello world ! from Trainer")
+    val input = "/Users/Alex/programs/git-msbgd/Alexandre_Bec/TP3_Spark/trainingset"
+    var df = spark.read.parquet(input)
+
+    df.show()
 
   }
 }
