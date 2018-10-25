@@ -87,13 +87,8 @@ def scrap_page(soup):
     table = soup.find(class_="resultListContainer").find_all(class_="adLineContainer")
     ads_treated = 0
     #ref_link, version, year, mileage, price, seller, phone = "", "", int(), int(), int(), "", ""
-    ref_link_list = []
-    version_list = []
-    year_list = []
-    mileage_list = []
-    price_list = []
-    seller_list = []
-    phone_list = []
+
+    ref_link_list, version_list, year_list, mileage_list, price_list, seller_list, phone_list = [], [], [], [], [], [], []
 
     for adLineContainer in table:
 
@@ -112,14 +107,8 @@ def scrap_page(soup):
         seller_list.append(result[5])
         phone_list.append(get_phone(result[0]))
 
-    temp_ads_df = pd.DataFrame({
-        'ref_link':ref_link_list,
-        'version':version_list,
-        'year':year_list,
-        'mileage':mileage_list,
-        'price':price_list,
-        'seller':seller_list,
-        'phone:':phone_list})
+    temp_ads_df = pd.DataFrame({'ref_link':ref_link_list, 'version':version_list, 'year':year_list,
+        'mileage':mileage_list, 'price':price_list, 'seller':seller_list, 'phone:':phone_list})
 
     return ads_treated, temp_ads_df
 
