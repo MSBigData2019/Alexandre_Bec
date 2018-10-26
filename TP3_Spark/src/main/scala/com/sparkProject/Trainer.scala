@@ -2,6 +2,8 @@ package com.sparkProject
 
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.SparkSession
+import org.apache.spark.ml
+import org.apache.spark.ml.feature.{CountVectorizer, IDF, RegexTokenizer, StopWordsRemover}
 
 
 object Trainer {
@@ -40,11 +42,43 @@ object Trainer {
       *
       ********************************************************************************/
 
-    println("hello world ! from Trainer")
+    // IN & OUT paths
     val input = "/Users/Alex/programs/git-msbgd/Alexandre_Bec/TP3_Spark/trainingset"
-    var df = spark.read.parquet(input)
 
-    df.show()
+
+    // Chargement du dataset
+    println("hello world ! from Trainer")
+    var df = spark.read.parquet(input)
+    println(df.count())
+
+
+    /** TF-IF **/
+
+    println("1. Tokenizer")
+    // Split text into tokenized words
+    val tokenizer = new RegexTokenizer()
+      .setPattern("\\W+")
+      .setGaps(true)
+      .setInputCol("text")
+      .setOutputCol("tokens")
+
+    println("2. StopWordsRemover")
+    val swremover = new StopWordsRemover()
+        .setInputCol("tokens")
+        .setOutputCol("filtered")
+
+    println("3. TF : Count vectorizer")
+    // Convert a collection of text documents to vectors of token counts
+    val countvect = new CountVectorizer()
+      .setInputCol("filtered")
+      .setOutputCol("td")
+      .setVocabSize(3)
+
+    println("4. IDF")
+    // It down-weights columns which appear frequently in a corpus.
+    val idf = new IDF()
+      .setInputCol("td")
+      .setOutputCol("tfidf")
 
   }
 }
