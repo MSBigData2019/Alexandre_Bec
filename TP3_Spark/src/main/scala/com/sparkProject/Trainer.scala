@@ -2,18 +2,22 @@ package com.sparkProject
 
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.SparkSession
+
+import org.apache.spark.ml.Pipeline
 import org.apache.spark.ml.feature._
 import org.apache.spark.ml.classification.LogisticRegression
-import org.apache.spark.ml.Pipeline
-import org.apache.spark.ml.evaluation.{MulticlassClassificationEvaluator, RegressionEvaluator}
+import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator
 import org.apache.spark.ml.tuning.{ParamGridBuilder, TrainValidationSplit}
-import org.apache.spark.mllib.evaluation.MulticlassMetrics
-import org.apache.spark.mllib.evaluation.{BinaryClassificationMetrics, MultilabelMetrics}
+
+import org.apache.log4j.{Logger, Level}
 
 
 object Trainer {
 
   def main(args: Array[String]): Unit = {
+
+    Logger.getLogger("org").setLevel(Level.WARN)
+    Logger.getLogger("akka").setLevel(Level.WARN)
 
     val conf = new SparkConf().setAll(Map(
       "spark.scheduler.mode" -> "FIFO",
@@ -79,7 +83,7 @@ object Trainer {
     val countvect = new CountVectorizer()
       .setInputCol("filtered")
       .setOutputCol("td")
-      .setVocabSize(3)
+      .setVocabSize(700)
 
     println("4. IDF")
     // It down-weights columns which appear frequently in a corpus.
@@ -91,13 +95,13 @@ object Trainer {
     val index_country = new StringIndexer()
       .setInputCol("country2")
       .setOutputCol("country_indexed")
-      .setHandleInvalid("skip")
+      .setHandleInvalid("keep")
 
 
     val index_currency = new StringIndexer()
       .setInputCol("currency2")
       .setOutputCol("currency_indexed")
-      .setHandleInvalid("skip")
+
 
     println("7,8. OneHotEncoder")
     val country_encoder = new OneHotEncoder()
@@ -170,15 +174,22 @@ object Trainer {
 
     /**
       * Make predictions on the test-dataset
-    **/
+      */
 
     val df_predictions = validation_model
       .transform(test)
       .select("features", "final_status", "predictions", "raw_predictions")
 
+    /**
+      * Evaluate F1 Metric for Test-data predictions
+      * Print counts of prediction dataframe
+      */
+
     val metrics = evaluator.evaluate(df_predictions)
 
     println("f1score : "+ metrics)
+
+    df_predictions.groupBy("final_status", "predictions").count.show()
 
   }
 }
