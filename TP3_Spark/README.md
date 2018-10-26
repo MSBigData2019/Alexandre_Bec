@@ -1,4 +1,4 @@
-Modifications pour lancement :
+## Modifications pour lancement :
 
 Modifier dans **build_and_submit.sh** :
 
@@ -13,13 +13,15 @@ val input = ".../trainingset"
 ```
 
 
-**Execution**
+## Execution
 
 ```
 ./build_and_submit.sh Trainer
 ```
 
-**Result : f1score = 0,6480**
+## Result : 
+
+**f1score = 0,6480**
 
 
 | final_status | predictions | count |
