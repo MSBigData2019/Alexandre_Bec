@@ -83,7 +83,6 @@ object Trainer {
     val countvect = new CountVectorizer()
       .setInputCol("filtered")
       .setOutputCol("td")
-      .setVocabSize(700)
 
     println("4. IDF")
     // It down-weights columns which appear frequently in a corpus.

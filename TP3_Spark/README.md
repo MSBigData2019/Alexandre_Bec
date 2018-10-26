@@ -6,7 +6,7 @@ Modifier dans **build_and_submit.sh** :
 path_to_spark="$HOME/spark-2.2.0-bin-hadoop2.7"
 ```
 
-Modifier dans **Trainer.scala** chemin vers le training set :
+Modifier dans **Trainer.scala** le chemin vers le training set :
 
 ```
 val input = ".../trainingset"
@@ -19,14 +19,12 @@ val input = ".../trainingset"
 ./build_and_submit.sh Trainer
 ```
 
-**Result : f1score = 0,6297**
+**Result : f1score = 0,6480**
 
 
-+------------+-----------+-----+
-|final_status|predictions|count|
-+------------+-----------+-----+
-|           1|        0.0|  886|
-|           0|        1.0| 3189|
-|           1|        1.0| 2508|
-|           0|        0.0| 4067|
-+------------+-----------+-----+
+| final_status | predictions | count |
+|:---------:|:-----------:|:-------:|
+| 1         | 0           |   1016  |
+| 0         | 1           |   2865  |
+| 1         | 1           |   2378  |
+| 0         | 1           |   4391  |
