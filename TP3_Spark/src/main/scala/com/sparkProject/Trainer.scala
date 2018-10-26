@@ -157,6 +157,7 @@ object Trainer {
     val evaluator = new MulticlassClassificationEvaluator()
       .setLabelCol("final_status")
       .setPredictionCol("predictions")
+      .setMetricName("f1")
 
     val trainvalidation = new TrainValidationSplit()
       .setEstimator(pipeline)
@@ -176,6 +177,7 @@ object Trainer {
       .select("features", "final_status", "predictions", "raw_predictions")
 
     val metrics = evaluator.evaluate(df_predictions)
+
     println("f1score : "+ metrics)
 
   }
