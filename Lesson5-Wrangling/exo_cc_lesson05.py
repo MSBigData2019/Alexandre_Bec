@@ -5,55 +5,57 @@ Le volume (nb de gelules)
 Calculer l'equivalent traitement
 '''
 
-import requests
-import json
+
 import pandas as pd
+import requests
 import re
 
-link = "https://www.open-medicaments.fr/api/v1/medicaments?query=paracetamol&limit=100"
 
-result = requests.get(link)
-result_json = json.loads(result.content)
-list_ids = []
+url = "https://www.open-medicaments.fr/api/v1/medicaments?limit=100&query=paracetamol"
+jsonData = requests.get(url).json()
 
-for i in range(0,len(result_json)):
-    result = result_json[i]
-    list_ids.append(result['codeCIS'])
+#ICS = [f'https://www.open-medicaments.fr/api/v1/medicaments/{elm["codeCIS"]}' for elm in jsonData]
+# Ne fonctionne pas dans pycharm ?
 
-    # UTILISER PANDAS READ JSON
+# Version boucle FOR
+ICS = []
+for i in range(0,len(jsonData)):
+    toAppend = 'https://www.open-medicaments.fr/api/v1/medicaments/'+jsonData[i]['codeCIS']
+    ICS.append(toAppend)
 
-medic_df = pd.DataFrame({"id":list_ids})
+print("Liste des liens API :")
+print(ICS)
 
-for id in medic_df["id"]:
-    link = "https://www.open-medicaments.fr/api/v1/medicaments/"+str(id)
-    result = requests.get(link)
-    result_json = json.loads(result.content)
-    codeCIS = result_json['codeCIS']
+#s = [requests.get(url).json() for url in ICS]
 
-    forme = result_json['formePharmaceutique']
-    denomination = result_json.get('denomination')
+fiches_completes = []
+for url in ICS:
+    fiches_completes.append(requests.get(url).json())
 
-    # Une seule ligne
-    libelle = result_json['presentations'][0]['libelle']
-    print(codeCIS, forme, libelle, denomination)
-    #formePharma = result_json['formePharmaeutique']
+print("Request pour chaque JSON complet :")
+print(fiches_completes)
 
-'''
-# Traitement denomination
-string = 'PARACETAMOL ZYDUS 500 mg, gélule'
-reg = r',(.*)'
-re.findall(reg, string)
+reg1 = r'(\d+)'
+libelles = [medoc["presentations"][0]["libelle"] for medoc in fiches_completes]
+gelules = pd.DataFrame({"gelules":[re.findall(reg1,lib)[-1] for lib in libelles]})
+print(gelules.head())
+
+df = pd.DataFrame(jsonData)
 
 
-link2 = "https://www.open-medicaments.fr/api/v1/medicaments/62772966"
-req = json.loads(requests.get(link2).content)
-df = pd.DataFrame(req)
-denomination = df['denomination']
-denomination.str.extract(reg)
 
-
+# On travaille uniquement sur la colonne Denomination
+# Nouveau DF à partir des elements de la regex
 reg = r'([\D]*)(\d+)(.*),(.*)'
-ds['mul']=1000
-ds['mul'] = ds['mul'].where(ds[unité].str.strip()=='g',1)
-ds['dosage'] = ds[1].fillna(0).astype(int)*ds['mul']
-'''
+serie = df["denomination"]
+ds = serie.str.extract(reg)
+
+# Colonnes de multiplicateur pour g/mg et dosage
+ds["mul"] = 1000
+ds["mul"] = ds["mul"].where(ds[2].str.strip()=="g",1)
+
+ds["dosage"] = ds[1].fillna(0).astype(int)*ds["mul"]
+
+ds["nb_gelules"] = gelules
+
+print(ds.head())
