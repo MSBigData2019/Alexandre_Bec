@@ -60,7 +60,7 @@ def get_argus(link):
 
 
 def iterate_argus():
-    years = [2012]
+    years = [2012, 2013, 2014, 2015, 2016, 2017, 2018]
     #2013, 2014, 2015, 2016, 2017, 2018
     model_name_list = []
     year_list = []
@@ -72,7 +72,7 @@ def iterate_argus():
         model_list = model_page_soup.find(class_="listingResult").find_all(class_="listingResultLine auto sizeA")
         for resultLine in model_list:
             link = "https://www.lacentrale.fr/"+resultLine.a.get('href')
-            year_list.append(year)
+            year_list.append(int(year))
             price_argus.append(get_argus(link))
             model_name_list.append(resultLine.a.text.split("\n")[2])
 
@@ -101,13 +101,13 @@ def scrap_page(soup):
         ads_treated += 1
         ref_link_list.append(result[0])
         version_list.append(result[1])
-        year_list.append(result[2])
+        year_list.append(int(result[2]))
         mileage_list.append(result[3])
         price_list.append(result[4])
         seller_list.append(result[5])
         phone_list.append(get_phone(result[0]))
 
-    temp_ads_df = pd.DataFrame({'ref_link':ref_link_list, 'version':version_list, 'year':year_list,
+    temp_ads_df = pd.DataFrame({'ref_link':ref_link_list, 'model':version_list, 'year':year_list,
         'mileage':mileage_list, 'price':price_list, 'seller':seller_list, 'phone:':phone_list})
 
     return ads_treated, temp_ads_df
@@ -121,7 +121,7 @@ def iterate_pages(ads_nb):
     link, version, year, mileage, price, seller, phone = [], [], [], [], [], [], []
 
     ads_df = pd.DataFrame({
-        'ref_link': link, 'version': version,
+        'ref_link': link, 'model': version,
         'year': year, 'mileage': mileage,
         'price': price, 'seller': seller, 'phone:': phone})
 
@@ -137,10 +137,15 @@ def iterate_pages(ads_nb):
 
         page += 1
         treated += response[0]
+
         if treated == ads_nb:
             break_loop = True
 
+
     return ads_df
+
+def truncate(argus):
+    return int(str(argus).split(".")[0])
 
 
 def main():
@@ -149,10 +154,21 @@ def main():
 
     print("Building Argus DataFrame...")
     argus_df = iterate_argus()
+    argus_df.to_csv("/Users/Alex/programs/git-msbgd/Alexandre_Bec/Lesson4-Cleaning/data/argus.csv")
+    #argus_df = pd.read_csv("/Users/Alex/programs/git-msbgd/Alexandre_Bec/Lesson4-Cleaning/data/argus.csv")
+    mean_argus = argus_df.groupby('year').mean()
 
     print("Building Ads Dataframe...")
     ads_df = iterate_pages(ads_number(url))
     print(ads_df)
+    ads_df.to_csv("/Users/Alex/programs/git-msbgd/Alexandre_Bec/Lesson4-Cleaning/data/annonces.csv")
+    #ads_df = pd.read_csv("/Users/Alex/programs/git-msbgd/Alexandre_Bec/Lesson4-Cleaning/data/annonces.csv")
+
+    merged = pd.merge(ads_df.reset_index(), mean_argus.reset_index(), on='year')
+    merged['argus'] = merged['argus'].apply(truncate)
+    #merged = merged.drop(['Unnamed: 0_y', "index"], axis=1)
+
+    merged.to_csv("/Users/Alex/programs/git-msbgd/Alexandre_Bec/Lesson4-Cleaning/data/merged.csv")
 
 
 if __name__ == "__main__":
