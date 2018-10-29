@@ -94,7 +94,7 @@ object Trainer {
     val index_country = new StringIndexer()
       .setInputCol("country2")
       .setOutputCol("country_indexed")
-      .setHandleInvalid("keep")
+      .setHandleInvalid("skip")
 
 
     val index_currency = new StringIndexer()
