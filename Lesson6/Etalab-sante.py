@@ -17,7 +17,23 @@ colonnes_population = ['Départements'
 
 df_population_xl = pd.read_excel('data/estim-pop-dep-975-2018.xls'
                     , encoding = "utf-8"
-                    , sheetname="2018")
+                    , sheet_name="2018")
 
 df_population = df_population_xl[colonnes_population]
 df_population = df_population.groupby(['Départements']).sum()
+
+# Données d'honoraires totaux par département
+depassement = pd.read_excel('data/Honoraires-2016.xls'
+                                ,encoding = "utf-8"
+                                ,sheet_name='Spécialistes')
+
+depassement['DEPARTEMENT'] = depassement['DEPARTEMENT'].str[:2]
+depassement2 = depassement.drop(columns=['Spécialistes'
+        , 'EFFECTIFS'
+        , 'HONORAIRES SANS DEPASSEMENT (Euros)'
+        ,'FRAIS DE DEPLACEMENT (Euros)'
+        ,'TOTAL DES HONORAIRES (Euros)'])
+
+depassement2['DEPASSEMENTS (Euros)'] = pd.to_numeric(depassement2['DEPASSEMENTS (Euros)'] , errors='coerce')
+depassement2 = depassement2.groupby(['DEPARTEMENT']).sum()
+depassement2 = depassement2.drop(depassement2.index[len(depassement2)-1])
