@@ -1,0 +1,39 @@
+
+ --- building .jar --- 
+
+[0m[[0minfo[0m] [0mLoading global plugins from /Users/Alex/.sbt/0.13/plugins[0m
+[0m[[0minfo[0m] [0mLoading project definition from /Users/Alex/programs/git-msbgd/Alexandre_Bec/TP3_Spark/project[0m
+[0m[[0minfo[0m] [0mSet current project to TP3_Spark (in build file:/Users/Alex/programs/git-msbgd/Alexandre_Bec/TP3_Spark/)[0m
+[0m[[0minfo[0m] [0mCompiling 1 Scala source to /Users/Alex/programs/git-msbgd/Alexandre_Bec/TP3_Spark/target/scala-2.11/classes...[0m
+[0m[[33mwarn[0m] [0mMultiple main classes detected.  Run 'show discoveredMainClasses' to see the list[0m
+[0m[[0minfo[0m] [0mChecking every *.class/*.jar file's SHA-1.[0m
+[0m[[0minfo[0m] [0mMerging files...[0m
+[0m[[0minfo[0m] [0mSHA-1: 1de7cfb3bf7d98ca4b90e3adef4edcdb57152b4b[0m
+[0m[[0minfo[0m] [0mPackaging /Users/Alex/programs/git-msbgd/Alexandre_Bec/TP3_Spark/target/scala-2.11/TP3_Spark-assembly-0.1.jar ...[0m
+[0m[[0minfo[0m] [0mDone packaging.[0m
+[0m[[32msuccess[0m] [0mTotal time: 8 s, completed 28 oct. 2018 16:28:52[0m
+
+ --- spark-submit --- 
+
+hello world ! from Trainer
+107614
+1. Tokenizer
+2. StopWordsRemover
+3. TF : Count vectorizer
+4. IDF
+5,6. Convert categorical columns to indexed
+7,8. OneHotEncoder
+9. Assemble features into vector
+10. Declare Classification Model
+11. Pipeline de la win
+12. Model Parameters estimation
+f1score : 0.6479883823569594
++------------+-----------+-----+
+|final_status|predictions|count|
++------------+-----------+-----+
+|           1|        0.0| 1016|
+|           0|        1.0| 2865|
+|           1|        1.0| 2378|
+|           0|        0.0| 4391|
++------------+-----------+-----+
+
